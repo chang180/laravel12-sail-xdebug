@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('vibe');
             $table->string('imagePath');
+            $table->string('likedBy')->nullable();
             $table->timestamps();
         });
     }
