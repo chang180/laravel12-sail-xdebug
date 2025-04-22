@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,6 +18,12 @@ Route::get('/debug-test', function () {
     $foo = "Hello";
     $bar = "World";
     return $foo . ' ' . $bar; // 在這裡設置斷點
+});
+
+// 建立一個 api 分組，提供image的 CRUD API
+Route::prefix('api')->group(function () {
+    Route::apiResource('images', ImageController::class)
+        ->only(['index']);
 });
 
 require __DIR__.'/settings.php';
