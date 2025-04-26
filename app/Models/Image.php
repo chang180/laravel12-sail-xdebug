@@ -11,7 +11,6 @@ class Image extends Model
 {
     /** @use HasFactory<\Database\Factories\ImageFactory> */
     use HasFactory;
-
     /**
      * 可批量賦值的屬性
      *
@@ -20,7 +19,7 @@ class Image extends Model
     protected $fillable = [
         'name',
         'vibe',
-        'imagePath',
+        'imagePath'
     ];
 
     /**
