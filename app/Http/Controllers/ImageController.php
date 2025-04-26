@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Image;
 use App\Http\Requests\StoreImageRequest;
 use App\Http\Requests\UpdateImageRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,11 @@ class ImageController extends Controller
     {
         // 直接回傳一個 JSON 格式的資料，用 "data" 包住
         return response()->json([
-            'data' => Image::with('likedBy')->get()
+            'data' => Image::all()->map(function ($image) {
+                $imageArray = $image->toArray();
+                $imageArray['likedBy'] = $image->likedBy()->pluck('users.id')->toArray();
+                return $imageArray;
+            })
         ]);
     }
 
@@ -130,15 +135,22 @@ class ImageController extends Controller
         return response()->json([
             'message' => '圖片刪除成功'
         ]);
-}
+    }
 
     /**
      * Toggle like status for the image.
      */
     public function toggleLike(Image $image)
     {
-        $user = Auth::user();
-
+        // $user = Auth::user();
+        $user = User::find(1); // 假設用戶ID為1，實際應根據當前登錄用戶獲取
+        if (!$user) {
+            return response()->json([
+                'error' => true,
+                'message' => '未登入'
+            ], 401);
+        }
+        $test = $image->id;
         // 檢查用戶是否已經喜歡這張圖片
         if ($image->likedBy()->where('user_id', $user->id)->exists()) {
             // 如果已經喜歡，則取消喜歡
@@ -150,9 +162,17 @@ class ImageController extends Controller
             $message = '已添加喜歡';
         }
 
+        // return response()->json([
+        //     'message' => $message,
+        //     'likes_count' => $image->likedBy()->count()
+        // ]);
+
+        // 回傳 JSON 格式的資料
+        $imageArray = $image->toArray();
+        $imageArray['likedBy'] = $image->likedBy()->pluck('users.id')->toArray();
+
         return response()->json([
-            'message' => $message,
-            'likes_count' => $image->likedBy()->count()
+            'data' => $imageArray
         ]);
     }
 
