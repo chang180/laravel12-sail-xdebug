@@ -22,8 +22,14 @@ Route::get('/debug-test', function () {
 
 // 建立一個 api 分組，提供image的 CRUD API
 Route::prefix('api')->group(function () {
-    Route::apiResource('images', ImageController::class)
-        ->only(['index']);
+    // 图片资源路由
+    Route::apiResource('images', ImageController::class);
+
+    // 图片点赞相关路由
+    // Route::middleware('auth')->group(function () {
+        Route::post('images/{image}/like', [ImageController::class, 'toggleLike']);
+        Route::get('images/{image}/likes', [ImageController::class, 'getLikes']);
+    // });
 });
 
 require __DIR__.'/settings.php';

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class ImageFactory extends Factory
 {
     protected $model = Image::class;
+
     /**
      * Define the model's default state.
      *
@@ -21,12 +22,19 @@ class ImageFactory extends Factory
     {
         return [
             'name' => $this->faker->word . '.jpg',
-            'vibe' => $this->faker->paragraph,
+            'vibe' => $this->faker->sentence,
             'imagePath' => 'images/' . $this->faker->word . '.jpg',
             'likedBy' => json_encode([]), // 默認為空陣列
         ];
     }
 
+    /**
+     * 從現有文件創建圖片
+     *
+     * @param string $filename
+     * @param string $path
+     * @return $this
+     */
     public function fromExistingFile($filename, $path)
     {
         return $this->state(function (array $attributes) use ($filename, $path) {
@@ -41,7 +49,7 @@ class ImageFactory extends Factory
 
             return [
                 'name' => $this->faker->name,
-                'vibe' => $this->faker->paragraph,
+                'vibe' => $this->faker->sentence,
                 'imagePath' => $path,
             'likedBy' => json_encode($existingUserIds), // 將用戶 ID 陣列轉換為 JSON 字符串
             ];
