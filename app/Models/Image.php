@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Image extends Model
 {
@@ -23,6 +24,28 @@ class Image extends Model
     ];
 
     /**
+     * 獲取與圖片關聯的用戶
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'image_user')
+                    ->withTimestamps();
+    }
+
+    /**
+     * 獲取喜歡這張圖片的用戶
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function likedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'image_likes', 'image_id', 'user_id')
+                    ->withTimestamps();
+    }
+
+    /**
      * 獲取圖片的完整 URL
      *
      * @return string
@@ -30,7 +53,7 @@ class Image extends Model
     public function getImageUrlAttribute(): string
     {
         return Storage::url($this->imagePath);
-}
+    }
 
     /**
      * 獲取圖片的完整路徑
@@ -61,7 +84,7 @@ class Image extends Model
     {
         if ($this->fileExists()) {
             return Storage::disk('public')->delete($this->imagePath);
-        }
+}
 
         return false;
     }
