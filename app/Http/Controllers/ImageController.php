@@ -22,6 +22,7 @@ class ImageController extends Controller
             'data' => Image::all()->map(function ($image) {
                 $imageArray = $image->toArray();
                 $imageArray['likedBy'] = $image->likedBy()->pluck('users.id')->toArray();
+                $imageArray['imagePath'] = url(Storage::url($image->imagePath)); // 獲取圖片的完整 URL
                 return $imageArray;
             })
         ]);
@@ -41,7 +42,11 @@ class ImageController extends Controller
     public function store(StoreImageRequest $request)
     {
         // 驗證請求
-        // $validated = $request->validated();
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'vibe' => 'required|string|max:255',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // 限制圖片格式和大小
+        ]);
 
         // 測試期，使用者ID為1
         $userId = 1;
@@ -69,8 +74,13 @@ class ImageController extends Controller
                 'vibe' => $request->input('vibe'),
                 'imagePath' => $path,
             ]);
+
+            // 先儲存圖片記錄到資料庫，這樣它才會有 id
+            $image->save();
+
             // 將圖片與使用者關聯
-            $image->users()->attach($userId);
+            $image->users()->attach($user->id);
+            $image->likedBy()->attach($user->id); // 預設喜歡自己的圖片
 
             return response()->json([
                 'message' => '圖片上傳成功',
