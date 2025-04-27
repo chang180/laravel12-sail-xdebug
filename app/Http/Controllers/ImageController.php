@@ -41,7 +41,18 @@ class ImageController extends Controller
     public function store(StoreImageRequest $request)
     {
         // 驗證請求
-        $validated = $request->validated();
+        // $validated = $request->validated();
+
+        // 測試期，使用者ID為1
+        $userId = 1;
+        // 檢查使用者是否存在
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json([
+                'error' => true,
+                'message' => '使用者不存在'
+            ], 404);
+        }
 
         // 處理圖片上傳
         if ($request->hasFile('image')) {
@@ -52,12 +63,14 @@ class ImageController extends Controller
             // 儲存檔案到 public/images 目錄
             $path = $file->storeAs('images', $filename, 'public');
 
-            // 創建圖片記錄
-            $image = Image::create([
-                'name' => $validated['name'],
-                'vibe' => $validated['vibe'] ?? null,
+            // 創建圖片記錄, 並指定為使用者的圖片
+            $image = new Image([
+                'name' => $request->input('name'),
+                'vibe' => $request->input('vibe'),
                 'imagePath' => $path,
             ]);
+            // 將圖片與使用者關聯
+            $image->users()->attach($userId);
 
             return response()->json([
                 'message' => '圖片上傳成功',

@@ -25,12 +25,15 @@ Route::get('/debug-test', function () {
 Route::prefix('api')->group(function () {
         // 图片资源路由
         Route::apiResource('images', ImageController::class);
-
-    // 測試使用，暫時排除 CSRF 驗證
-    Route::patch('images/{image}/like', [ImageController::class, 'toggleLike'])
-        ->withoutMiddleware(VerifyCsrfToken::class);
-
         Route::get('images/{image}/likes', [ImageController::class, 'getLikes']);
+
+        // 測試使用，暫時排除 CSRF 驗證
+        Route::patch('images/{image}/like', [ImageController::class, 'toggleLike'])
+            ->withoutMiddleware(VerifyCsrfToken::class);
+        // 新增圖片
+        Route::post('images', [ImageController::class, 'store'])
+            ->withoutMiddleware(VerifyCsrfToken::class);
+
     });
 
 require __DIR__.'/settings.php';
