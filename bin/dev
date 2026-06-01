@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+if [ $# -eq 0 ]; then
+    exec docker compose up
+fi
+
+if [ "$1" = "artisan" ]; then
+    shift
+    exec docker compose exec laravel.test php artisan "$@"
+fi
+
+if [ "$1" = "composer" ]; then
+    shift
+    exec docker compose exec laravel.test composer "$@"
+fi
+
+if [ "$1" = "npm" ] || [ "$1" = "npx" ]; then
+    exec docker compose exec laravel.test "$@"
+fi
+
+if [ "$1" = "shell" ] || [ "$1" = "bash" ]; then
+    exec docker compose exec laravel.test bash
+fi
+
+if [ "$1" = "test" ]; then
+    exec docker compose exec laravel.test php artisan test
+fi
+
+if [ "$1" = "pest" ]; then
+    shift
+    exec docker compose exec laravel.test ./vendor/bin/pest "$@"
+fi
+
+if [ "$1" = "up" ]; then
+    shift
+    exec docker compose up "$@"
+fi
+
+if [ "$1" = "down" ]; then
+    exec docker compose down "$@"
+fi
+
+if [ "$1" = "build" ]; then
+    shift
+    exec docker compose build "$@"
+fi
+
+exec docker compose exec laravel.test "$@"
